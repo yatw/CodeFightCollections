@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1481558568 source:c:\users\sunny\workspace\c++\codefight\datetoday\main.cpp
+	<iostream>
+	<sstream>
+	<string>
+	<vector>
+	<cstring>
+	<stdlib.h>
+	<map>
+	<vector>
+	<iomanip>
+

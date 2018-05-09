@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1481919251 source:c:\users\sunny\workspace\c++\codefight\spamdetection\main.cpp
+	<iostream>
+	<vector>
+	<string>
+	<sstream>
+	<map>
+	<set>
+	<algorithm>
+

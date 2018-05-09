@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1482720714 source:c:\users\sunny\workspace\c++\codefight\codecheck\main.cpp
+	<iostream>
+	<string>
+	<array>
+	<vector>
+
