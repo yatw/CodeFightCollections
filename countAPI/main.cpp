@@ -1,10 +1,12 @@
-#include <iostream>
+#include <iostream> // cout
 #include <stdio.h>
 #include <vector>
 #include <map>
+#include <string>
 #include <string.h>
 #include <cstring>
-#include <algorithm>
+#include <sstream>
+
 using namespace std;
 
 struct folder
@@ -74,8 +76,6 @@ int record(std::vector<std::string> calls){
                 projects[project_name].methods_count++;
 
             }
-
-
         }
     }
     return 0;
@@ -86,14 +86,32 @@ std::vector<std::string> countAPI(std::vector<std::string> calls) {
     record(calls);
     std::vector<std::string> result;
 
+
+    string temp;
+
     for(auto project : projects)
     {
-       std::cout << "--" << project.first << " (" << project.second.methods_count <<  ")" << endl;
+       ostringstream c;
+       c << project.second.methods_count;
+       temp = "--" + project.first + " (" + c.str() + ")";
+       result.push_back(temp);
+       std::cout << temp << endl;
 
        for (auto subproject: project.second.subfolders){
-            std::cout << "----" << subproject.first << " ("  << subproject.second.methods_count <<  ")" <<  endl;
+
+            ostringstream c1;
+            c1 << subproject.second.methods_count;
+            temp = "----" + subproject.first +  " (" +  c1.str() + ")";
+            result.push_back(temp);
+            std::cout << temp <<  endl;
+
             for (auto method : subproject.second.methods){
-                std::cout << "------" << method.first << "  (" << method.second  << ")" << endl;;
+
+                ostringstream c2;
+                c2 << method.second;
+                temp = "------" + method.first +  " (" + c2.str() +  ")";
+                result.push_back(temp);
+                std::cout << temp << endl;;
             }
        }
 
