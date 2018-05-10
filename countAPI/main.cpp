@@ -9,15 +9,16 @@ using namespace std;
 
 
 
-int printrecord(std::map <std::string, std::map<std::string, std::vector<std::string>>> projects){
 
-    for(auto elem : projects)
+int printrecord(std::map <std::string, std::map<std::string, std::map<std::string,int>>> projects){
+
+    for(auto project : projects)
     {
-       std::cout << "--" << elem.first << "\n";
-       for (auto subp: elem.second){
-            std::cout << "----" << subp.first << "\n";
-            for (auto i = subp.second.begin(); i != subp.second.end(); ++i){
-                std::cout << "------" << *i << endl;;
+       std::cout << "--" << project.first << "\n";
+       for (auto subproject: project.second){
+            std::cout << "----" << subproject.first << "\n";
+            for (auto method : subproject.second){
+                std::cout << "------" << method.first << " " << method.second << endl;;
             }
        }
 
@@ -25,10 +26,10 @@ int printrecord(std::map <std::string, std::map<std::string, std::vector<std::st
 }
 
 
-std::map <std::string, std::map<std::string, std::vector<std::string>>> record(std::vector<std::string> calls){
+std::map <std::string, std::map<std::string, std::map<std::string,int>>> record(std::vector<std::string> calls){
     // make a map that keep track of all the projects
 
-    std::map <std::string, std::map<std::string, std::vector<std::string>>> projects;
+    std::map <std::string, std::map<std::string, std::map<std::string,int>>> projects;
 
     for (int i = 0; i < calls.size(); i++){
 
@@ -43,10 +44,10 @@ std::map <std::string, std::map<std::string, std::vector<std::string>>> record(s
 
         if ( projects.find(project_name) == projects.end()){
             // not in the projects, add it in
-            std::map <std::string, std::vector<std::string>> subprojects;  // inside the project, add subproject
-            std::vector <std::string> methods;  // inside the subproject add methods
+            std::map <std::string,  std::map <std::string, int>> subprojects;  // inside the project, add subproject
+            std::map <std::string, int> methods;  // inside the subproject add methods
 
-            methods.push_back(method_name);
+            methods.insert(std::make_pair(method_name, 1));
             subprojects.insert(std::make_pair(subproject_name,methods));
             projects.insert(std::make_pair(project_name,subprojects));
         }else{
@@ -56,26 +57,55 @@ std::map <std::string, std::map<std::string, std::vector<std::string>>> record(s
             if (projects[project_name].find(subproject_name) == projects[project_name].end()){
                 // if the subdirectory not exist in the project folder
                 // add it in
-                std::vector <std::string> methods;  // inside the subproject add methods
-                methods.push_back(method_name);
+                std::map <std::string, int> methods;   // inside the subproject add methods
+                methods.insert(std::make_pair(method_name, 1));
                 projects[project_name].insert(std::make_pair(subproject_name,methods));
 
             }else{
                 // if the subdirectory already exist in the project folder
-                // add in the new method
-                projects[project_name][subproject_name].push_back(method_name);
+                // check if the method already in subdirectory
+                if (projects[project_name][subproject_name].find(method_name) == projects[project_name][subproject_name].end()){
+                    // method not in subdirectory
+
+                    projects[project_name][subproject_name].insert(std::make_pair(method_name, 1));
+                }else{
+                    // method already in subdirectory
+                    // update
+                    projects[project_name][subproject_name][method_name]++;
+                }
+
             }
         }
     }
     return projects;
 }
 
-int countAPI(std::vector<std::string> calls) {
+std::vector<std::string> countAPI(std::vector<std::string> calls) {
 
-    std::map <std::string, std::map<std::string, std::vector<std::string>>> projects = record(calls);
+    std::map <std::string, std::map<std::string, std::map<std::string,int>>> projects = record(calls);
     printrecord(projects);
+    std::vector<std::string> result;
+    //std::map <std::string, int> countfolder;
+/*
+    for(auto project : projects){
+        int methods_in_project = 0;
 
-    return 0;
+        for (auto subproject: project.second){
+            int methods_in_sub = 0;
+
+            for (auto method = subproject.second.begin(); method != subproject.second.end(); ++method){
+                methods_in_sub++;
+            }
+            countfolder.insert(std::make_pair(subproject.first,methods_in_sub));
+            methods_in_project += methods_in_sub;
+        }
+        countfolder.insert(std::make_pair(project.first,methods_in_project));
+    }
+*/
+
+
+
+    return result;
  }
 
 
