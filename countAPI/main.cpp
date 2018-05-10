@@ -12,27 +12,31 @@ using namespace std;
 struct folder
 {
     map<string, folder> subfolders;
+    vector<string> subfolders_order;
     map<string, int> methods;
+    vector<string> methods_order;
     int methods_count;
 };
 
-std::map<string, folder> projects; //datastructure to store the folders
+map<string, folder> projects; //datastructure to store the folders
+vector<string> projects_order;
 
 
 
-int record(std::vector<std::string> calls){
+int record(vector<string> calls){
     // make a map that keep track of all the projects
 
     for (int i = 0; i < calls.size(); i++){
 
         // convert string to char*
-        std::vector<char> v(calls[i].length() + 1);
-        std::strcpy(&v[0], calls[i].c_str());
+        vector<char> v(calls[i].length() + 1);
+        strcpy(&v[0], calls[i].c_str());
         char* directory = &v[0];
 
         char* project_name = strtok(directory, "/");
         char* subproject_name = strtok(NULL, "/");
         char* method_name = strtok(NULL, "/");
+
 
         if ( projects.find(project_name) == projects.end()){
             // not in the projects, add it in
@@ -40,12 +44,15 @@ int record(std::vector<std::string> calls){
             folder subproject;
             subproject.methods.insert(make_pair(method_name, 1 ));
             subproject.methods_count = 1;
+            subproject.methods_order.push_back(method_name);
 
             folder project;
             project.methods_count = 1;
             project.subfolders.insert(make_pair(subproject_name, subproject));
+            project.subfolders_order.push_back(subproject_name);
 
             projects.insert(make_pair(project_name,project));
+            projects_order.push_back(project_name);
         }else{
 
             // if project already in projects
@@ -56,9 +63,12 @@ int record(std::vector<std::string> calls){
                 folder subproject;
                 subproject.methods_count = 1;
                 subproject.methods.insert(make_pair(method_name, 1 ));
+                subproject.subfolders_order.push_back(method_name);
+                subproject.methods_order.push_back(method_name);
 
                 projects[project_name].methods_count++;
                 projects[project_name].subfolders.insert(make_pair(subproject_name, subproject ));
+                projects[project_name].subfolders_order.push_back(subproject_name);
 
             }else{
                 // subproject exists in project folder
@@ -67,6 +77,7 @@ int record(std::vector<std::string> calls){
                 if (projects[project_name].subfolders[subproject_name].methods.find(method_name) == projects[project_name].subfolders[subproject_name].methods.end()){
                     // method doesn't exist
                     projects[project_name].subfolders[subproject_name].methods.insert(make_pair(method_name, 1));
+                    projects[project_name].subfolders[subproject_name].methods_order.push_back(method_name);
 
                 }else{
 
@@ -75,52 +86,46 @@ int record(std::vector<std::string> calls){
                 projects[project_name].subfolders[subproject_name].methods_count++;
                 projects[project_name].methods_count++;
 
+
             }
         }
     }
     return 0;
 }
 
-std::vector<std::string> countAPI(std::vector<std::string> calls) {
+vector<string> countAPI(vector<string> calls) {
 
     record(calls);
-    std::vector<std::string> result;
-
+    vector<string> result;
 
     string temp;
+    for (auto project: projects_order){
+        ostringstream c;
+        c << projects[project].methods_count;
+        temp = "--" + project + " (" + c.str() + ")";
+        result.push_back(temp);
+        cout << temp << endl;
 
-    for(auto project : projects)
-    {
-       ostringstream c;
-       c << project.second.methods_count;
-       temp = "--" + project.first + " (" + c.str() + ")";
-       result.push_back(temp);
-       std::cout << temp << endl;
 
-       for (auto subproject: project.second.subfolders){
+       for (auto subproject: projects[project].subfolders_order){
 
             ostringstream c1;
-            c1 << subproject.second.methods_count;
-            temp = "----" + subproject.first +  " (" +  c1.str() + ")";
+            c1 << projects[project].subfolders[subproject].methods_count;
+            temp = "----" + subproject +  " (" +  c1.str() + ")";
             result.push_back(temp);
-            std::cout << temp <<  endl;
+            cout << temp <<  endl;
 
-            for (auto method : subproject.second.methods){
+                for (auto method : projects[project].subfolders[subproject].methods_order){
 
-                ostringstream c2;
-                c2 << method.second;
-                temp = "------" + method.first +  " (" + c2.str() +  ")";
-                result.push_back(temp);
-                std::cout << temp << endl;;
-            }
+                    ostringstream c2;
+                    c2 << projects[project].subfolders[subproject].methods[method];
+                    temp = "------" + method +  " (" + c2.str() +  ")";
+                    result.push_back(temp);
+                    cout << temp << endl;;
+                }
+
        }
-
-
     }
-
-
-
-
     return result;
  }
 
@@ -128,7 +133,7 @@ std::vector<std::string> countAPI(std::vector<std::string> calls) {
 int main()
 {
 
-    std::vector<std::string> calls;
+    vector<std::string> calls;
     calls.push_back ("/project1/subproject1/method1");
     calls.push_back ("/project2/subproject1/method1");
     calls.push_back ("/project1/subproject1/method1");
@@ -139,11 +144,28 @@ int main()
     calls.push_back ("/project1/subproject2/method1");
 
 
-
     countAPI(calls);
     return 0;
 }
 /***
+
+calls: ["/project1/subproject1/method1",
+ "/project2/subproject1/method1",
+ "/project1/subproject1/method1",
+ "/project1/subproject2/method1",
+ "/project1/subproject1/method2",
+ "/project1/subproject2/method1",
+ "/project2/subproject1/method1",
+ "/project1/subproject2/method1"]
+
+["--project1 (6)",
+ "----subproject1 (3)",
+ "------method1 (2)",
+ "----subproject2 (3)",
+ "------method1 (3)",
+ "--project2 (2)",
+ "----subproject1 (2)",
+ "------method1 (2)"]
 
 Expected Output:
 
@@ -157,3 +179,4 @@ Expected Output:
  "----subproject1 (2)",
  "------method1 (2)"]
  ***/
+
