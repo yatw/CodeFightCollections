@@ -7,29 +7,19 @@
 #include <algorithm>
 using namespace std;
 
+struct folder
+{
+    map<string, folder> subfolders;
+    map<string, int> methods;
+    int methods_count;
+};
+
+std::map<string, folder> projects; //datastructure to store the folders
 
 
 
-int printrecord(std::map <std::string, std::map<std::string, std::map<std::string,int>>> projects){
-
-    for(auto project : projects)
-    {
-       std::cout << "--" << project.first << "\n";
-       for (auto subproject: project.second){
-            std::cout << "----" << subproject.first << "\n";
-            for (auto method : subproject.second){
-                std::cout << "------" << method.first << " " << method.second << endl;;
-            }
-       }
-
-    }
-}
-
-
-std::map <std::string, std::map<std::string, std::map<std::string,int>>> record(std::vector<std::string> calls){
+int record(std::vector<std::string> calls){
     // make a map that keep track of all the projects
-
-    std::map <std::string, std::map<std::string, std::map<std::string,int>>> projects;
 
     for (int i = 0; i < calls.size(); i++){
 
@@ -44,64 +34,72 @@ std::map <std::string, std::map<std::string, std::map<std::string,int>>> record(
 
         if ( projects.find(project_name) == projects.end()){
             // not in the projects, add it in
-            std::map <std::string,  std::map <std::string, int>> subprojects;  // inside the project, add subproject
-            std::map <std::string, int> methods;  // inside the subproject add methods
 
-            methods.insert(std::make_pair(method_name, 1));
-            subprojects.insert(std::make_pair(subproject_name,methods));
-            projects.insert(std::make_pair(project_name,subprojects));
+            folder subproject;
+            subproject.methods.insert(make_pair(method_name, 1 ));
+            subproject.methods_count = 1;
+
+            folder project;
+            project.methods_count = 1;
+            project.subfolders.insert(make_pair(subproject_name, subproject));
+
+            projects.insert(make_pair(project_name,project));
         }else{
-            // already in projects, update subdirectory
 
-            // check if the subdirectory exist in the project folder
-            if (projects[project_name].find(subproject_name) == projects[project_name].end()){
-                // if the subdirectory not exist in the project folder
-                // add it in
-                std::map <std::string, int> methods;   // inside the subproject add methods
-                methods.insert(std::make_pair(method_name, 1));
-                projects[project_name].insert(std::make_pair(subproject_name,methods));
+            // if project already in projects
+            // check subproject exist
+            if (projects[project_name].subfolders.find(subproject_name) == projects[project_name].subfolders.end()){
+                // subproject not in project folder
+                // add subproject and methods
+                folder subproject;
+                subproject.methods_count = 1;
+                subproject.methods.insert(make_pair(method_name, 1 ));
+
+                projects[project_name].methods_count++;
+                projects[project_name].subfolders.insert(make_pair(subproject_name, subproject ));
 
             }else{
-                // if the subdirectory already exist in the project folder
-                // check if the method already in subdirectory
-                if (projects[project_name][subproject_name].find(method_name) == projects[project_name][subproject_name].end()){
-                    // method not in subdirectory
+                // subproject exists in project folder
+                // check if that methods in the subproject folder
 
-                    projects[project_name][subproject_name].insert(std::make_pair(method_name, 1));
+                if (projects[project_name].subfolders[subproject_name].methods.find(method_name) == projects[project_name].subfolders[subproject_name].methods.end()){
+                    // method doesn't exist
+                    projects[project_name].subfolders[subproject_name].methods.insert(make_pair(method_name, 1));
+
                 }else{
-                    // method already in subdirectory
-                    // update
-                    projects[project_name][subproject_name][method_name]++;
+
+                    projects[project_name].subfolders[subproject_name].methods[method_name]++;
                 }
+                projects[project_name].subfolders[subproject_name].methods_count++;
+                projects[project_name].methods_count++;
 
             }
+
+
         }
     }
-    return projects;
+    return 0;
 }
 
 std::vector<std::string> countAPI(std::vector<std::string> calls) {
 
-    std::map <std::string, std::map<std::string, std::map<std::string,int>>> projects = record(calls);
-    printrecord(projects);
+    record(calls);
     std::vector<std::string> result;
-    //std::map <std::string, int> countfolder;
-/*
-    for(auto project : projects){
-        int methods_in_project = 0;
 
-        for (auto subproject: project.second){
-            int methods_in_sub = 0;
+    for(auto project : projects)
+    {
+       std::cout << "--" << project.first << " (" << project.second.methods_count <<  ")" << endl;
 
-            for (auto method = subproject.second.begin(); method != subproject.second.end(); ++method){
-                methods_in_sub++;
+       for (auto subproject: project.second.subfolders){
+            std::cout << "----" << subproject.first << " ("  << subproject.second.methods_count <<  ")" <<  endl;
+            for (auto method : subproject.second.methods){
+                std::cout << "------" << method.first << "  (" << method.second  << ")" << endl;;
             }
-            countfolder.insert(std::make_pair(subproject.first,methods_in_sub));
-            methods_in_project += methods_in_sub;
-        }
-        countfolder.insert(std::make_pair(project.first,methods_in_project));
+       }
+
+
     }
-*/
+
 
 
 
