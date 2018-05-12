@@ -40,21 +40,22 @@ vector<string> chatBot(vector<vector<string>> conversations, vector<string> curr
 
 
     // insert the words from the conversation to currentConversation
-    if (match_count != 0){
+    if (match_count > 0){
 
         string last_matching_word = match_words[most_match][match_count-1];
-        bool insert_word = false;
-        for (int i = 0; i < conversations[most_match].size(); i++){
+        int insert_position = conversations[most_match].size()-1;
+        for (insert_position; insert_position >= 0; insert_position--){  // count from the back
 
-            if (insert_word){
-                currentConversation.push_back(conversations[most_match][i]);
-            }
-
-            if (conversations[most_match][i] == last_matching_word){
-                insert_word = true;
+            if (conversations[most_match][insert_position] == last_matching_word){
+                break;
             }
         }
+
+        for (int i = insert_position+1; i < conversations[most_match].size(); i++){
+            currentConversation.push_back(conversations[most_match][i]);
+        }
     }
+
 
     return currentConversation;
 }
@@ -66,13 +67,15 @@ vector<string> chatBot(vector<vector<string>> conversations, vector<string> curr
 
 int main()
 {
-    vector<string> currentConversation = {"hello", "john", "do", "you", "have", "a", "favorite", "city", "to", "live", "in", "yes", "it", "is"};
+    vector<string> currentConversation = {"is"};
 
     vector<vector<string>> conversations = {
 
         {"where", "are", "you", "live", "i", "live", "in", "new", "york"},
         {"are", "you", "going", "somewhere", "tonight", "no", "i", "am", "too", "tired", "today"},
         {"hello", "what", "is", "your", "name", "my", "name", "is", "john"},
+        {"damn", "smooth"}
+
 
 
 
