@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1526092891 source:c:\users\sunny\workspace\codefight\chatbot\main.cpp
+	<iostream>
+	<vector>
+	<map>
+	<algorithm>
+
