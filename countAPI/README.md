@@ -1,5 +1,5 @@
-The problme: Given a vector with a list of directories. Return another vector
-in a format that indicate which folder is under another folder, with number representing how 
+The problme: Given a vector with a list of strings representing directories. Return another vector
+in a specific format that indicate which folder is under another folder, with number representing how 
 many items in that folder.
 
 Complication: 
