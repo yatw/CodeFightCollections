@@ -6,6 +6,7 @@
 #include <algorithm> //for find
 #include <queue>          // std::priority_queue
 #include <functional>
+#include <sstream>
 using namespace std;
 
 struct pinfo{
@@ -16,10 +17,9 @@ struct pinfo{
 
 struct Compare
 {
-
     map <string, pinfo> p;
 
-    Compare( map <string, pinfo>*  projects){
+    Compare( map <string, pinfo>*  projects){  // constructor to take the map
         p = *projects;
     }
 
@@ -27,40 +27,39 @@ struct Compare
     {
         // compare two date, return true if lhs < rhs
 
-        string d1 = p[date1].dueday;
-        string d2 = p[date2].dueday;
+        string str = p[date1].dueday + "-" + p[date2].dueday;
+        replace(str.begin(), str.end(), '-', ' ');  // replace ':' by '-'
 
-        // convert string to char*
-        vector<char> v1(d1.length() + 1);
-        strcpy(&v1[0], d1.c_str());
-        char* date1_s = &v1[0];
+        vector<int> array;
+        stringstream ss(str);
+        int temp;
+        while (ss >> temp){
+                array.push_back(temp); // done! now array={102,330,3133,76531,451,000,12,44412}
+        }
 
-        int date1_y = atoi(strtok(date1_s, "-"));
-        int date1_m = atoi(strtok(NULL, "-"));
-        int date1_d = atoi(strtok(NULL, "-"));
+        int date1_y = array[0];
+        int date1_m = array[1];
+        int date1_d = array[2];
 
-        vector<char> v2(d2.length() + 1);
-        strcpy(&v2[0], d2.c_str());
-        char* date2_s = &v2[0];
 
-        int date2_y = atoi(strtok(date2_s, "-"));
-        int date2_m = atoi(strtok(NULL, "-"));
-        int date2_d = atoi(strtok(NULL, "-"));
+        int date2_y = array[3];
+        int date2_m = array[4];
+        int date2_d = array[5];
 
-        if (date1_y > date1_y){
-            return true;
+        if (date1_y < date2_y){
+            return false;
         }else if (date1_y == date2_y){
 
-            if (date1_m > date2_m){
-                return true;
+            if (date1_m < date2_m){
+                return false;
             }else if (date1_m == date2_m){
 
-                if (date1_d > date2_d || date1_d == date2_d){
-                    return true;
+                if (date1_d < date2_d){
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 };
 
@@ -70,32 +69,29 @@ struct Compare
 bool in_between(string startday, string dueday, string date){
     // "2017-02-01","2017-03-01"
 
-    // convert string to char*
-    vector<char> vs(startday.length() + 1);
-    strcpy(&vs[0], startday.c_str());
-    char* startday_s = &vs[0];
 
-    int startday_year = atoi(strtok(startday_s, "-"));
-    int startday_month = atoi(strtok(NULL, "-"));
-    int startday_day = atoi(strtok(NULL, "-"));
+    string str = startday + "-" + dueday + "-" + date;
+    replace(str.begin(), str.end(), '-', ' ');  // replace ':' by '-'
 
-
-    vector<char> vd(dueday.length() + 1);
-    strcpy(&vd[0], dueday.c_str());
-    char* dueday_s = &vd[0];
-
-    int dueday_year = atoi(strtok(dueday_s, "-"));
-    int dueday_month = atoi(strtok(NULL, "-"));
-    int dueday_day = atoi(strtok(NULL, "-"));
+    vector<int> array;
+    stringstream ss(str);
+    int temp;
+    while (ss >> temp){
+            array.push_back(temp); // done! now array={102,330,3133,76531,451,000,12,44412}
+    }
 
 
-    vector<char> ve(date.length() + 1);
-    strcpy(&ve[0], date.c_str());
-    char* date_s = &ve[0];
+    int startday_year = array[0];
+    int startday_month = array[1];
+    int startday_day = array[2];
 
-    int date_year = atoi(strtok(date_s, "-"));
-    int date_month = atoi(strtok(NULL, "-"));
-    int date_day = atoi(strtok(NULL, "-"));
+    int dueday_year = array[3];
+    int dueday_month = array[4];
+    int dueday_day = array[5];
+
+    int date_year = array[6];
+    int date_month = array[7];
+    int date_day = array[8];
 
 
     //check if the date is before startday
@@ -115,7 +111,6 @@ bool in_between(string startday, string dueday, string date){
     }// else date_year > startday_year, the date is NOT before the startday, but continue to check if it is after the dueday
 
 
-
     //check if the date is after dueday
     if (date_year > dueday_year){
         return false;
@@ -131,7 +126,6 @@ bool in_between(string startday, string dueday, string date){
         }
 
     }
-
 
     return true;
 }
@@ -181,7 +175,7 @@ vector<vector<string>> roadmap(vector<vector<string>> tasks, vector<vector<strin
         string worker = query[0];
         string date = query[1];
 
-        priority_queue<string, std::vector<string>, Compare> q(&projects); // store all the projects in order
+        priority_queue<string, vector<string>, Compare> q(&projects); // store all the projects in order
 
         // loop through all the projects this worker working on
         for (auto p :workingon[worker]){
@@ -198,9 +192,6 @@ vector<vector<string>> roadmap(vector<vector<string>> tasks, vector<vector<strin
           w.push_back(q.top());
           q.pop();
         }
-
-
-
         result.push_back(w);
     }
 
@@ -221,8 +212,6 @@ int main()
         }
         cout << "------------" << endl;
     }
-
-
     return 0;
 }
 
